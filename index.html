@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>(0) Hay lugar para otra? - Contatore</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans per i testi, Climate Crisis per i titoli e numeri grandi -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Climate+Crisis&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       === VARIABILI CSS (:root) ===
+       Tavolozza colori, tipografia, raggi di curvatura e ombre del design system
+       ========================================================================== */
+    :root {
+      /* Colori primari caldi (crosta e dettagli dorati da forno) */
+      --color-crust: #85340D;
+      --color-crust-dark: #602000;
+      --color-gold: #F6B40E;
+      --color-gold-light: #FFE566;
+      --color-amber: #DF8C00;
+      --color-danger: #D92D20;
+
+      /* Colori secondari blueprint (precisione grafica e griglia wireframe) */
+      --color-sky: #73ADDE;
+      --color-sky-light: #B8DCF5;
+      --color-sky-bg: #EEF4F8;
+      --color-sky-grid: rgba(115, 173, 222, 0.12);
+
+      /* Colori di sfondo e superfici neutre */
+      --color-bg-canvas: #F8FAFC;
+      --color-surface-white: #FFFFFF;
+
+      /* Tipografia */
+      --font-display: 'Climate Crisis', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+
+      /* Raggi di curvatura */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-card: 36px;
+      --radius-frame: 44px;
+      --radius-full: 9999px;
+
+      /* Ombre e profondità meccaniche / blueprint */
+      --shadow-frame: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08);
+      --shadow-card: 0 4px 12px rgba(133, 52, 13, 0.08);
+      --shadow-plate: 0 6px 16px rgba(133, 52, 13, 0.12);
+      --shadow-modal: 0 20px 40px rgba(96, 32, 0, 0.25);
+    }
+
+    /* ==========================================================================
+       === RESET E LAYOUT PRINCIPALE (Mobile-first e centratura desktop) ===
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--color-bg-canvas);
+      font-family: var(--font-body);
+      color: var(--color-crust-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+    }
+
+    /* Telaio mobile simulato stile smartphone: centrato su desktop con larghezza max 420px */
+    .mobile-frame {
+      width: 100%;
+      max-width: 420px;
+      min-height: 844px;
+      background-color: var(--color-surface-white);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-frame);
+      border-radius: var(--radius-frame);
+      /* Trama di sfondo a griglia tecnica blueprint */
+      background-size: 24px 24px;
+      background-image:
+        linear-gradient(to right, var(--color-sky-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--color-sky-grid) 1px, transparent 1px);
+    }
+
+    /* Su schermi piccoli lo smartphone occupa tutto lo schermo disponibile */
+    @media (max-width: 480px) {
+      .mobile-frame {
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* ==========================================================================
+       === STATUS BAR SUPERIORE ===
+       ========================================================================== */
+    .status-bar {
+      width: 100%;
+      padding: 14px 28px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--color-sky);
+      z-index: 20;
+    }
+
+    .status-badge {
+      border: 1px solid rgba(115, 173, 222, 0.4);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background-color: rgba(115, 173, 222, 0.1);
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-sky);
+    }
+
+    /* ==========================================================================
+       === HEADER DELL'APP ===
+       ========================================================================== */
+    .app-header {
+      padding: 24px 24px 0;
+      text-align: center;
+      z-index: 20;
+    }
+
+    /* Tag/badge sopra il titolo */
+    .header-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px dashed var(--color-sky);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--color-sky);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .tag-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-gold);
+    }
+
+    /* Titolo primario in stile brutalist / Climate Crisis */
+    .app-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      line-height: 1.15;
+      color: var(--color-crust);
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      padding: 0 8px;
+    }
+
+    .app-subtitle {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-sky);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ==========================================================================
+       === MAIN: AREA INTERATTIVA CENTRALE (STAGE HERO) ===
+       ========================================================================== */
+    .app-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 16px 20px;
+      z-index: 20;
+    }
+
+    /* Riquadro di delimitazione wireframe tratteggiato */
+    .stage-wireframe-box {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      top: 10px;
+      bottom: 120px;
+      border: 1px dashed rgba(115, 173, 222, 0.35);
+      border-radius: var(--radius-card);
+      pointer-events: none;
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 16px;
+    }
+
+    .wireframe-label {
+      font-size: 9px;
+      font-family: monospace;
+      color: rgba(115, 173, 222, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Contenitore per centrare l'empanada */
+    .empanada-stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 300px;
+    }
+
+    /* ==========================================================================
+       === BOTTONE EMPANADA E BADGE NUMERICO ===
+       ========================================================================== */
+    .empanada-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      position: relative;
+      transform-origin: center center;
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+      touch-action: manipulation;
+      outline: none;
+    }
+
+    .empanada-btn:active {
+      transform: scale(calc(var(--target-scale, 1) * 0.94)) !important;
+    }
+
+    /* Animazione Pop Up ad ogni nuovo click */
+    @keyframes popPulse {
+      0% {
+        transform: scale(var(--target-scale, 1));
+      }
+
+      50% {
+        transform: scale(calc(var(--target-scale, 1) * 1.14));
+      }
+
+      100% {
+        transform: scale(var(--target-scale, 1));
+      }
+    }
+
+    .animate-pop {
+      animation: popPulse 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Grafica SVG empanada */
+    .empanada-svg {
+      width: 100%;
+      max-width: 270px;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 6px 12px rgba(96, 32, 0, 0.12));
+      pointer-events: none;
+    }
+
+    /* Sovrapposizione testi sopra l'empanada */
+    .empanada-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-top: 20px;
+      pointer-events: none;
+    }
+
+    .counter-value {
+      font-family: var(--font-display);
+      font-size: 64px;
+      line-height: 1;
+      color: var(--color-crust);
+      text-shadow: 0 2px 4px rgba(255, 255, 255, 0.6);
+    }
+
+    .counter-badge {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-crust);
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      margin-top: 4px;
+      border: 1px solid rgba(133, 52, 13, 0.25);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    /* ==========================================================================
+       === SEZIONE CAPIENZA STOMACO (PROGRESS BAR) ===
+       ========================================================================== */
+    .capacity-section {
+      width: 100%;
+      max-width: 270px;
+      margin-top: 10px;
+      z-index: 20;
+    }
+
+    .capacity-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-crust);
+      margin-bottom: 6px;
+      padding: 0 2px;
+    }
+
+    .capacity-fraction {
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    /* Input accessibile ma stilizzato tramite barra custom */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 14px;
+      background-color: #E6F0FA;
+      border-radius: var(--radius-full);
+      padding: 2px;
+      border: 1px solid rgba(115, 173, 222, 0.5);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--color-gold-light), var(--color-gold));
+      border-radius: var(--radius-full);
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+    }
+
+    .capacity-status-text {
+      font-size: 10px;
+      font-weight: 800;
+      text-align: center;
+      color: var(--color-crust);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 8px;
+      min-height: 16px;
+    }
+
+    .status-alert {
+      color: var(--color-danger);
+      animation: alertBlink 1s infinite alternate;
+    }
+
+    @keyframes alertBlink {
+      from {
+        opacity: 0.7;
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1.02);
+      }
+    }
+
+    /* ==========================================================================
+       === FOOTER E AZIONI DI CONTROLLO ===
+       ========================================================================== */
+    .app-footer {
+      width: 100%;
+      padding: 8px 24px 28px;
+      position: relative;
+      z-index: 30;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    /* Colonna sinistra di bilanciamento blueprint */
+    .wireframe-widget {
+      width: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.65;
+    }
+
+    .widget-text {
+      font-size: 9px;
+      font-family: monospace;
+      color: var(--color-sky);
+      text-align: center;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    /* Pulsante Reset / Piatto vuoto */
+    .action-btn-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .plate-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      outline: none;
+      transition: transform 0.15s ease;
+    }
+
+    .plate-btn:active {
+      transform: scale(0.92);
+    }
+
+    .plate-outer {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-surface-white);
+      border: 3.5px solid var(--color-crust);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-plate);
+      position: relative;
+      transition: background-color 0.2s;
+    }
+
+    .plate-btn:hover .plate-outer {
+      background-color: #FFF9EE;
+    }
+
+    .plate-inner {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-full);
+      border: 2px dashed var(--color-sky);
+      background-color: rgba(115, 173, 222, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .plate-icon {
+      color: var(--color-crust);
+      font-size: 26px;
+    }
+
+    .plate-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background-color: var(--color-crust);
+      color: var(--color-surface-white);
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--color-surface-white);
+    }
+
+    .action-label-title {
+      font-family: var(--font-display);
+      font-size: 10px;
+      color: var(--color-crust);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 8px;
+    }
+
+    .action-label-sub {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--color-sky);
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+
+    /* Pulsante Profilo Gourmet */
+    .profile-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      outline: none;
+      transition: transform 0.15s ease;
+    }
+
+    .profile-btn:active {
+      transform: scale(0.92);
+    }
+
+    .profile-badge-box {
+      width: 60px;
+      height: 60px;
+      background-color: var(--color-sky);
+      border-radius: 22px;
+      border-top-left-radius: 8px;
+      border: 3px solid var(--color-crust);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-surface-white);
+      box-shadow: var(--shadow-plate);
+      transition: background-color 0.2s;
+    }
+
+    .profile-btn:hover .profile-badge-box {
+      background-color: #5FA0D4;
+    }
+
+    .profile-icon {
+      font-size: 32px;
+    }
+
+    /* Barra Home iPhone */
+    .home-indicator {
+      width: 128px;
+      height: 4px;
+      background-color: rgba(133, 52, 13, 0.25);
+      border-radius: var(--radius-full);
+      margin: 10px auto 0;
+    }
+
+    /* ==========================================================================
+       === EFFETTO ESPLOSIONE DI RIPIENO (PARTICELLE E MODALE) ===
+       ========================================================================== */
+    .splatter-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 40;
+      overflow: hidden;
+      display: none;
+    }
+
+    .splatter-particle {
+      position: absolute;
+      pointer-events: none;
+      will-change: transform, opacity;
+      animation: flyParticle 0.85s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes flyParticle {
+      0% {
+        transform: translate(0, 0) scale(0.6);
+        opacity: 1;
+      }
+
+      80% {
+        opacity: 0.95;
+      }
+
+      100% {
+        transform: translate(var(--tx), var(--ty)) scale(var(--scale));
+        opacity: 0.9;
+      }
+    }
+
+    /* Scuotimento schermo durante l'esplosione */
+    @keyframes screenShake {
+
+      0%,
+      100% {
+        transform: translate(0, 0);
+      }
+
+      20% {
+        transform: translate(-8px, 6px);
+      }
+
+      40% {
+        transform: translate(8px, -6px);
+      }
+
+      60% {
+        transform: translate(-5px, -3px);
+      }
+
+      80% {
+        transform: translate(5px, 4px);
+      }
+    }
+
+    .shake {
+      animation: screenShake 0.45s ease-in-out;
+    }
+
+    /* Finestra modale di scoppio capienza */
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(30, 20, 15, 0.4);
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .explosion-card {
+      background-color: var(--color-surface-white);
+      border: 4px solid var(--color-crust);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      text-align: center;
+      box-shadow: var(--shadow-modal);
+      max-width: 320px;
+      width: 100%;
+      transform: scale(0.9);
+      animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes modalPop {
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .modal-icon-circle {
+      width: 56px;
+      height: 56px;
+      background-color: var(--color-gold);
+      border: 3px solid var(--color-crust);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 12px;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--color-crust);
+      text-transform: uppercase;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .modal-text {
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.45;
+      color: var(--color-crust-dark);
+      margin-bottom: 18px;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--color-sky);
+      color: var(--color-surface-white);
+      border: 2px solid var(--color-crust);
+      border-radius: var(--radius-md);
+      font-family: var(--font-display);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      box-shadow: 0 4px 0 var(--color-crust);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .modal-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--color-crust);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ==========================================================================
+       === STRUTTURA APPLICAZIONE (Mobile-first Frame) ===
+       ========================================================================== -->
+  <div id="screenContainer" class="mobile-frame">
+
+    <!-- 1. BARRA DI STATO SUPERIORE -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span class="status-badge">Wireframe v1.0</span>
+      <div class="status-icons">
+        <span class="material-symbols-rounded" style="font-size: 16px;">wifi</span>
+        <span class="status-dot"></span>
+      </div>
+    </div>
+
+    <!-- 2. HEADER DELL'APPLICAZIONE -->
+    <header class="app-header">
+      <div class="header-tag">
+        <span class="tag-dot"></span>
+        <span>Contatore Empanadas</span>
+      </div>
+      <h1 class="app-title">Hay lugar para otra?</h1>
+      <p class="app-subtitle">Tocca l'empanada per contare</p>
+    </header>
+
+    <!-- 3. MAIN: PALCOSCENICO INTERATTIVO DELL'EMPANADA E CONTATORE -->
+    <main class="app-main">
+
+      <!-- Riquadro visivo con guide e limiti massimi -->
+      <div class="stage-wireframe-box">
+        <span class="wireframe-label">Area Interattiva Focus</span>
+        <span class="wireframe-label">Max 10 Empanadas</span>
+      </div>
+
+      <!-- Palco centrale del bottone Empanada -->
+      <section class="empanada-stage" aria-label="Area contatore empanada">
+        <button id="empanadaBtn" class="empanada-btn" aria-label="Aggiungi una empanada gustata">
+
+          <!-- Illustrazione vettoriale SVG con pieghe tradizionali (repulgue) -->
+          <svg class="empanada-svg" viewBox="0 0 694.47 411.15" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <style>
+                .cls-yellow-light {
+                  fill: #FFE566;
+                }
+
+                .cls-crust-dark {
+                  fill: #602000;
+                }
+
+                .cls-yellow-mid {
+                  fill: #FFE469;
+                }
+
+                .cls-gold {
+                  fill: #FFA400;
+                }
+
+                .cls-amber {
+                  fill: #DF8C00;
+                }
+              </style>
+            </defs>
+            <g>
+              <g>
+                <!-- Bordo esterno scuro della crosta -->
+                <path class="cls-crust-dark"
+                  d="M348.66,410.75c-1.38.06-2.76.11-4.14.15-32.53.88-65.37-.59-97.62-4.37-6.41-.75-12.86-1.41-19.1-2.06-38.82-3.99-75.49-7.76-109.71-32.22l-.6-.43c-3.87-2.77-7.87-5.64-11.74-5.61-3.12.02-6.35,1.85-9.8,3.78-12.28,6.89-30.75,17.24-47.82,18-9.06.4-16.83-1.93-23.1-6.92-1.4-1.12-2.74-2.38-3.99-3.77-3.6-2.95-6.97-6.92-10.02-11.82-10.56-16.93-13.71-38.81-8.63-60.04,2.84-11.88,7.16-21.49,12.85-28.58,2-2.49,4.62-4.41,7.16-6.26,4.73-3.45,6.94-5.38,6.83-8.2-.28-6.96-3.26-13.7-6.4-20.83-3.87-8.77-7.88-17.84-7.73-28.71.26-18.75,8.07-35.37,22.08-47.23-7.41-16.31-7.48-36.05,0-52.48,7.35-16.14,21.92-28.95,38.76-34.37-3.74-19.14,7.47-41.14,26.8-50.98,7.51-3.82,15.9-5.96,24.94-6.36,11.07-.49,22.66,1.64,33.75,6.18,12.78-13.92,31.16-22.89,49.89-24.2,19.05-1.33,38.05,4.97,52.46,17.18C287.56,7.72,308.04,1.05,326.27.24c20.68-.92,38.62,5.78,53.4,19.91C394.04,8.18,412.69.92,431.54.08c4.6-.2,9.21-.03,13.7.52,12.28,1.51,40.77,6.87,54.45,24.82,7.28-5.43,15.41-10.94,24.67-13.86,4.07-1.29,8.34-2.04,12.69-2.23,13.51-.6,26.8,4.11,36.48,12.93,11.46,10.45,17.48,26.35,16.18,41.85,2.36-.43,4.78-1.13,7.3-1.86,3.71-1.07,7.55-2.18,11.65-2.56,22.66-2.08,40.53,20.03,42.8,41.27.63,5.95.45,12.04-.58,18.58,2.03,11.29,1,23.92-3.07,37.56-.33,1.09-.68,2.27-1,3.46,20.95,15.64,31.38,45.49,24.48,71.14-.19,2.44-.43,4.81-.61,6.63-.43,4.17-1.2,8.6-2.01,13.29-.27,1.57-.55,3.17-.81,4.76,10.37,12.96,19.98,25.94,24.42,41.55,4.9,17.22,1.45,35.55-8.78,46.85-1.16,1.82-2.48,3.54-3.95,5.13-5.35,5.68-12.77,8.75-22.08,9.16h0c-15.39.68-31.1-6.03-37.14-8.94-1-.48-2-.99-3-1.5-4.28-2.17-8.31-4.22-12.36-4.31-.3,0-.59,0-.88.01-6.52.29-12.67,5.52-18.62,10.58-.59.5-1.18,1-1.76,1.5-41.76,35.17-98.72,41.71-153.49,45.41-12.43.84-25.01,2.56-37.17,4.23-14.39,1.98-29.27,4.02-44.38,4.69Z">
+                </path>
+                <!-- Corpo dorato dell'empanada -->
+                <path class="cls-gold"
+                  d="M669.8,337.45c9.85-10.59,11.68-27.14,7.71-41.1-4.19-14.75-13.73-27.26-23.29-39.18-.24-.3-.49-.61-.73-.92,1.06-6.7,2.41-13.38,3.01-19.19.23-2.21.45-4.46.62-6.73,6.68-24.06-3.6-52.31-24.31-65.92.49-2.23,1.15-4.45,1.8-6.63,3.65-12.22,4.82-23.96,2.7-34.86.96-5.79,1.28-11.63.65-17.5-2.01-18.81-17.5-37.47-36.33-35.75-8.17.75-15.91,5.12-24.09,4.66,3.24-15.1-2.02-31.65-13.34-41.97-11.32-10.31-28.27-14-42.97-9.35-9.77,3.09-18.16,9.42-26.35,15.63-9.35-16.83-34-23.81-51.99-26.02-22.53-2.77-46.23,5.01-62.92,20.64-32.77-34.9-76.63-20.17-112.34-.29-13.18-12.33-31.6-18.85-49.69-17.59-18.09,1.26-35.59,10.28-47.2,24.34-17.45-7.99-38.57-10.08-55.81-1.3-17.24,8.78-28.57,30.13-22.26,48.31-16.85,3.89-31.68,16.04-38.87,31.83-7.19,15.8-6.58,34.88,1.61,50.03-5.36,4-9.83,8.75-13.34,14.05-5.85,8.83-9.01,19.21-9.17,30.3-.25,17.92,12.98,31.43,13.64,47.57.21,5.24-3.75,8.4-7.86,11.42-2.46,1.81-4.98,3.56-6.67,5.66-2.17,2.71-4.03,5.75-5.62,8.97-1.06,2.15-2,4.37-2.83,6.62-.71,1.93-1.33,3.88-1.89,5.82-.19.67-.38,1.34-.56,2-.21.78-.42,1.56-.6,2.33-2.74,11.45-2.92,23.59-.24,34.99,1.61,6.84,4.26,13.42,8,19.43,2.44,3.91,5.39,7.66,8.96,10.51,1.07,1.22,2.24,2.36,3.53,3.38,1.04.83,2.13,1.54,3.23,2.17.36.2.73.37,1.09.55.77.39,1.55.76,2.35,1.07.43.17.86.31,1.3.45.77.25,1.55.47,2.35.65.44.1.88.21,1.33.29.86.16,1.74.26,2.62.35.38.04.75.09,1.13.11,1.26.08,2.53.09,3.82.04.14,0,.27-.03.41-.03,1.16-.06,2.33-.17,3.51-.33.45-.06.9-.14,1.35-.22.88-.14,1.75-.3,2.63-.48.51-.11,1.01-.22,1.52-.34.84-.2,1.69-.42,2.53-.66.5-.14,1-.28,1.5-.43.9-.27,1.8-.57,2.7-.88.42-.15.85-.28,1.27-.43,1.28-.46,2.56-.95,3.83-1.46.35-.14.69-.29,1.03-.44.94-.39,1.88-.79,2.81-1.21.54-.24,1.08-.49,1.61-.74.72-.33,1.43-.66,2.13-1,.58-.28,1.14-.56,1.71-.84.65-.32,1.29-.64,1.92-.97.57-.29,1.14-.58,1.7-.88.12-.06.25-.13.37-.19,0,0,0,0,0,0,3.42-1.8,6.64-3.59,9.5-5.2,3.69-2.07,7.56-4.25,11.77-4.29,5.47-.04,10.19,3.51,14.62,6.68,37.38,26.71,78.62,27.15,122.21,32.26,31.02,3.64,62.31,5.04,93.58,4.19,28.16-.77,54.96-6.89,82.54-8.75,49.98-3.37,105.35-8.96,145.47-42.74,7.03-5.92,14.51-12.98,23.64-12.77,4.65.11,8.91,2.13,13.1,4.25h0c1.21.61,2.41,1.23,3.62,1.81,13.99,6.75,39.22,14.11,51.73.84,1.37-1.48,2.53-3.03,3.51-4.62Z">
+                </path>
+                <!-- Sfumatura ambrata della cottura -->
+                <path class="cls-amber"
+                  d="M577.81,145.05c-3.71-14.51-9.42-29.03-20.1-39.45-15.41-15.02-38.26-18.96-59.7-21.4-85.7-9.74-172.95-6.77-258.05,8.8-1.98,4.75,4.48,8.31,9.49,9.29,28.87,5.66,58.12,9.45,87.51,11.36,23.85,1.55,48.43,1.99,70.35,11.38,21.91,9.39,40.82,30.45,39.34,54.4-1.23,19.93-15.56,36.24-26.05,53.31-14.21,23.11-22.1,50.04-22.58,77.06-.21,11.62.88,23.6-3.04,34.58-6.14,17.2-23.22,28.13-40.33,34.45-37.5,13.85-78.34,11.65-118.23,14.66,5.36.55,10.76,1.12,16.2,1.76,31.02,3.64,62.31,5.04,93.57,4.19,28.16-.77,54.96-6.89,82.54-8.75,49.98-3.37,105.35-8.96,145.47-42.74,1.6-1.35,3.23-2.75,4.89-4.12,12.33-39.52,10.28-83.42,7.8-125.28-1.47-24.7-2.96-49.58-9.08-73.5Z">
+                </path>
+              </g>
+              <!-- Dettagli increspature delle chiusure artigianali -->
+              <path class="cls-crust-dark"
+                d="M410.18,56.06c-.59.02-1.18-.07-1.77-.28-2.02-.74-4.38-1.01-6.87-1.3-2.73-.31-5.55-.64-8.41-1.6-10.35-3.47-17.17-15.02-15.19-25.76.46-2.51,2.87-4.16,5.38-3.7,2.51.46,4.17,2.87,3.7,5.38-1.16,6.28,2.98,13.3,9.04,15.33,1.95.65,4.17.91,6.53,1.18,2.92.34,5.94.68,9,1.8,2.39.88,3.62,3.53,2.74,5.92-.66,1.81-2.34,2.95-4.15,3.02Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M505.41,70.9c-.92.04-1.85-.2-2.68-.74-4.07-2.63-8.68-5.61-12.02-10.12-5.45-7.33-6.27-17.71-2.06-25.81,1.18-2.26,3.96-3.14,6.23-1.96,2.26,1.18,3.14,3.96,1.96,6.23-2.58,4.96-2.05,11.56,1.28,16.04,2.35,3.17,6.05,5.56,9.63,7.87,2.14,1.38,2.75,4.24,1.37,6.38-.85,1.31-2.25,2.05-3.7,2.11Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M590.36,110.93c-.62.02-1.26-.08-1.88-.32-2.37-.94-3.53-3.62-2.59-5.99.49-1.23-.22-3.39-1.85-5.65-.51-.7-1.07-1.41-1.67-2.16-1.78-2.23-3.8-4.76-4.9-8-1.81-5.29-.59-10.81.3-14.83.55-2.49,3.02-4.06,5.51-3.51,2.49.55,4.06,3.02,3.51,5.51-.88,3.97-1.48,7.22-.58,9.84.59,1.72,1.95,3.43,3.39,5.23.64.8,1.29,1.62,1.93,2.5,3.62,5,4.67,10.14,2.96,14.46-.69,1.75-2.34,2.84-4.11,2.91Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M605.74,206.61c-2.27.09-4.31-1.51-4.72-3.81-1.33-7.47-.67-15.19,1.91-22.32,1.33-3.67,3.08-6.94,5.21-9.72,3.23-4.23,7.47-7.5,12.24-9.48,4.65-1.92,9.75-2.58,14.73-1.9,2.53.34,4.3,2.67,3.95,5.2-.34,2.53-2.67,4.3-5.2,3.95-3.37-.46-6.82-.01-9.96,1.29-3.27,1.35-6.19,3.62-8.44,6.55-1.55,2.03-2.85,4.47-3.86,7.25-2.03,5.61-2.55,11.69-1.5,17.56.45,2.51-1.23,4.91-3.74,5.35-.21.04-.42.06-.63.07Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M620.4,302.75c-.92.04-1.86-.2-2.7-.75-2.14-1.39-2.74-4.25-1.35-6.39,2.71-4.16,3.17-9.66,3.67-15.49l.11-1.27c.66-7.56,2.02-15.34,7.46-21.01l.28-.29c.13-.13.29-.3.39-.41.37-.81.97-1.51,1.73-1.99,7.95-5.03,17.47-7.21,26.82-6.15,2.53.29,4.35,2.58,4.06,5.11-.29,2.53-2.58,4.35-5.11,4.06-6.8-.77-13.98.76-19.9,4.21-.48.69-1,1.22-1.4,1.62l-.21.22c-3.46,3.61-4.41,9.54-4.92,15.42l-.11,1.25c-.54,6.4-1.15,13.65-5.13,19.75-.85,1.3-2.25,2.04-3.69,2.09Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M46.99,353.98c-10.94.43-22.04-2.71-30.72-9.32-2.03-1.54-2.42-4.44-.88-6.47,1.54-2.03,4.44-2.42,6.47-.88,12.26,9.33,30.56,10.07,43.52,1.74,2.54-1.63,4.09-3.13,4.89-4.7,1.15-2.28,3.93-3.19,6.2-2.04,2.28,1.15,3.19,3.93,2.04,6.2-2.06,4.08-5.64,6.7-8.14,8.31-6.94,4.46-15.12,6.83-23.39,7.15Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M661.45,314.05c-5.75.23-11.28-1-14.81-1.78-2.49-.55-4.06-3.02-3.51-5.5.55-2.49,3.01-4.06,5.51-3.51,8.28,1.83,16.59,2.92,21.3-1.51,2.32-2.19,3.37-5.74,2.6-8.84-.62-2.47.89-4.98,3.36-5.59,2.47-.61,4.98.89,5.6,3.37,1.58,6.33-.48,13.32-5.23,17.79-4.23,3.98-9.61,5.37-14.81,5.58Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M103.71,211.12c-.21,0-.43,0-.64-.02-2.54-.25-4.39-2.51-4.14-5.05,2.08-20.89,5.2-42.98,13.83-62.98,9.8-22.68,25.65-39.57,44.65-47.55,14.93-6.27,31.59-6.95,46.29-7.55l179.3-7.31c25.7-1.05,52.28-2.13,78.51-.04,2.54.2-257.43,16.57-257.43,16.57-14.6.6-29.7,1.21-43.09,6.84-16.78,7.05-30.9,22.22-39.75,42.7-7.68,17.79-10.8,36.94-13.12,60.23-.23,2.32-2.14,4.07-4.41,4.16Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M115.41,334.8c-2,.08-3.89-1.16-4.56-3.15-9.79-29.29-14.55-59.79-14.14-90.67.03-2.55,2.16-4.6,4.68-4.55,2.55.03,4.59,2.13,4.55,4.68-.4,29.84,4.2,59.32,13.66,87.62.81,2.42-.5,5.03-2.91,5.84-.43.14-.86.22-1.29.24Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M41.1,268.21c-2.48.1-4.61-1.8-4.78-4.29-.18-2.54,1.73-4.74,4.27-4.92.87-.07,20.58-1.79,26.33-19.79.78-2.43,3.38-3.77,5.8-2.99,2.43.78,3.77,3.37,2.99,5.8-7.69,24.05-33.39,26.11-34.48,26.19-.05,0-.09,0-.14,0Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M49.73,173.81c-.43.02-.85.03-1.27.03-2.55.02-4.63-2.03-4.66-4.58-.02-2.55,2.03-4.63,4.58-4.66,10.82-.09,21.66-5.5,28.25-14.11,1.55-2.02,4.44-2.41,6.47-.86,2.02,1.55,2.41,4.45.86,6.47-8.02,10.48-21.04,17.18-34.23,17.7Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M106.18,89.8c-7.22.28-14.17-1.03-20.89-2.31-2.51-.48-4.15-2.89-3.67-5.4.48-2.51,2.89-4.15,5.4-3.68,6.21,1.18,12.63,2.4,18.8,2.15,0,0,0,0,0,0,7.64-.3,15.28-2.93,21.49-7.39,2.07-1.49,4.96-1.02,6.44,1.05,1.49,2.07,1.02,4.96-1.06,6.44-7.67,5.51-17.08,8.75-26.51,9.12,0,0,0,0-.01,0Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M197.46,69.09c-.2,0-.4,0-.6-.02-6.67-.6-12.89-2.61-18.91-4.55-.38-.12-.74-.29-1.07-.51-8.79-5.63-13.58-16.73-11.64-26.98.47-2.5,2.88-4.15,5.39-3.68,2.51.47,4.15,2.89,3.68,5.39-1.2,6.36,1.77,13.49,7.09,17.19,5.34,1.72,10.85,3.46,16.29,3.95,2.54.23,4.41,2.47,4.18,5.01-.21,2.34-2.13,4.11-4.41,4.2Z">
+              </path>
+              <path class="cls-crust-dark"
+                d="M293.44,65.42c-.44.02-.88-.03-1.33-.14-5.69-1.45-11.16-3.69-16.24-6.63-3.16-1.83-7.65-4.81-10.21-9.55-3.05-5.63-2.56-12.15-2.21-16.91.19-2.54,2.4-4.45,4.94-4.26,2.54.19,4.45,2.4,4.26,4.94-.36,4.86-.51,8.83,1.12,11.84,1.12,2.07,3.19,3.9,6.72,5.95,4.35,2.52,9.02,4.43,13.89,5.67,2.47.63,3.96,3.14,3.33,5.61-.52,2.03-2.3,3.39-4.29,3.47Z">
+              </path>
+            </g>
+            <!-- Luce superiore dorata -->
+            <path class="cls-yellow-mid"
+              d="M282.76,105.39c-16.27-1.15-31.95.37-47.19,4.08-8.27,2.01-13.07,5.83-11.33,12.01,1.68,5.98,7.7,9.25,16.59,9.01,7.12-.19,14.15-1.36,21.27-1.76,29.23-1.68,58.43-.14,87.07,3.69,17.96,2.4,34.53,8.67,50.12,15.56,7.17,3.17,14.29,6.94,21.94,1.32,7.03-5.17,5.29-10.65.02-16.34-4.65-5.01-10.88-7.94-18.49-10.74-37.79-13.9-78.98-15.02-120.01-16.83Z">
+            </path>
+            <!-- Riflesso chiaro del cornicione -->
+            <path class="cls-yellow-light"
+              d="M167.31,144.44c14.1-.9,26.34-5.21,38.47-9.79,8.17-3.08,7.07-8.02,5.02-12.79-2.18-5.07-8.11-7.57-15.5-6.73-15.3,1.74-29.41,5.8-42.13,11.82-6.48,3.06-4.07,7.33-2.04,11.42,2.71,5.46,8.9,6.35,16.19,6.08Z">
+            </path>
+          </svg>
+
+          <!-- Testo e numero del contatore sovrapposti al centro -->
+          <div class="empanada-overlay">
+            <span id="counterValue" class="counter-value">0</span>
+            <span id="counterLabel" class="counter-badge">Tocca per iniziare</span>
+          </div>
+
+        </button>
+      </section>
+
+      <!-- 4. SEZIONE TELEMETRIA CAPIENZA STOMACO -->
+      <section class="capacity-section" aria-label="Indicatore capienza stomaco">
+        <div class="capacity-meta">
+          <label for="capacityInput">Stomaco:</label>
+          <span id="capacityFraction" class="capacity-fraction">0 / 10 empanadas</span>
+        </div>
+
+        <!-- Input semantico accessibile -->
+        <input type="range" id="capacityInput" class="sr-only" min="0" max="10" value="0" readonly aria-live="polite">
+
+        <!-- Barra di caricamento visiva -->
+        <div class="progress-track" aria-hidden="true">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+
+        <p id="capacityStatus" class="capacity-status-text">Spazio sufficiente per un'altra!</p>
+      </section>
+
+    </main>
+
+    <!-- 5. FOOTER DELL'APPLICAZIONE (Piatto Reset e Profilo) -->
+    <footer class="app-footer">
+      <div class="footer-actions">
+
+        <!-- Dettaglio blueprint laterale sinistro -->
+        <div class="wireframe-widget">
+          <span class="widget-text">Reset<br>Rapido</span>
+        </div>
+
+        <!-- Pulsante centrale: Piatto Vuoto (Azzera contatore) -->
+        <div class="action-btn-group">
+          <button id="resetPlateBtn" class="plate-btn" aria-label="Azzera il piatto e ricomincia da zero">
+            <div class="plate-outer">
+              <div class="plate-inner">
+                <span class="material-symbols-rounded plate-icon">restaurant</span>
+              </div>
+              <span class="plate-badge">0</span>
+            </div>
+            <span class="action-label-title">Piatto Vuoto</span>
+            <span class="action-label-sub">(Azzera)</span>
+          </button>
+        </div>
+
+        <!-- Pulsante laterale destro: Profilo Gourmet -->
+        <div class="action-btn-group">
+          <button id="profileBtn" class="profile-btn" aria-label="Visualizza il tuo profilo da degustatore">
+            <div class="profile-badge-box">
+              <span class="material-symbols-rounded profile-icon">person</span>
+            </div>
+            <span class="action-label-title">Profilo</span>
+            <span class="action-label-sub">Gourmet</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Barra di navigazione inferiore stile iPhone -->
+      <div class="home-indicator"></div>
+    </footer>
+
+    <!-- LIVELLO PER PARTICELLE DI RIPIENO (Esplosione visiva) -->
+    <div id="splatterOverlay" class="splatter-overlay"></div>
+
+    <!-- MODALE AVVISO SCOPPIO RIPIENO -->
+    <div id="modalBackdrop" class="modal-backdrop">
+      <div class="explosion-card">
+        <div class="modal-icon-circle">💥</div>
+        <h2 class="modal-title">¡Boom! Explosión de Relleno!</h2>
+        <p class="modal-text">
+          Hai mangiato più di 10 empanadas! Non c'è più posto per nessun'altra: l'empanada è scoppiata inondando lo
+          schermo di carne speziata e cipolla!
+        </p>
+        <button id="modalResetBtn" class="modal-btn">Pulisci piatto &amp; ricomincia</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==========================================================================
+       === LOGICA JAVASCRIPT VANILLA ===
+       ========================================================================== */-->
+  <script>
+    /* === STATO DELL'APPLICAZIONE === */
+    // Conteggio corrente delle empanadas mangiate
+    let empanadaCount = 0;
+    // Limite massimo di capienza dello stomaco prima dello scoppio
+    const maxCapacity = 10;
+
+    /* === SELEZIONE ELEMENTI DEL DOM === */
+    const empanadaBtn = document.querySelector('#empanadaBtn');
+    const counterValue = document.querySelector('#counterValue');
+    const counterLabel = document.querySelector('#counterLabel');
+    const capacityInput = document.querySelector('#capacityInput');
+    const capacityFraction = document.querySelector('#capacityFraction');
+    const progressFill = document.querySelector('#progressFill');
+    const capacityStatus = document.querySelector('#capacityStatus');
+    const resetPlateBtn = document.querySelector('#resetPlateBtn');
+    const profileBtn = document.querySelector('#profileBtn');
+    const screenContainer = document.querySelector('#screenContainer');
+    const splatterOverlay = document.querySelector('#splatterOverlay');
+    const modalBackdrop = document.querySelector('#modalBackdrop');
+    const modalResetBtn = document.querySelector('#modalResetBtn');
+
+    /* === FUNZIONI AUSILIARIE DI CALCOLO === */
+    // Calcola il fattore di scala dell'empanada: da 0.68 iniziale fino a 1.25 al decimo click
+    function calculateScale(count) {
+      if (count === 0) return 0.68;
+      return 0.68 + (Math.min(count, maxCapacity) * 0.057);
+    }
+
+    /* === AGGIORNAMENTO DELL'INTERFACCIA (UI) === */
+    function updateUI() {
+      // 1. Aggiorna numero e titolo della scheda del browser
+      counterValue.textContent = empanadaCount;
+      document.title = `(${empanadaCount}) Hay lugar para otra? - Contatore`;
+
+      // 2. Aggiorna la telemetria di capienza e barra di avanzamento
+      capacityFraction.textContent = `${empanadaCount} / ${maxCapacity} empanadas`;
+      capacityInput.value = empanadaCount;
+      const progressPercent = Math.min((empanadaCount / maxCapacity) * 100, 100);
+      progressFill.style.width = `${progressPercent}%`;
+
+      // 3. Calcola e applica la crescita dimensionale con animazione Pop
+      const scaleFactor = calculateScale(empanadaCount);
+      empanadaBtn.style.setProperty('--target-scale', scaleFactor);
+      empanadaBtn.style.transform = `scale(${scaleFactor})`;
+
+      // Riavvia l'animazione di rimbalzo (reflow per triggerare CSS keyframes)
+      empanadaBtn.classList.remove('animate-pop');
+      void empanadaBtn.offsetWidth;
+      empanadaBtn.classList.add('animate-pop');
+
+      // 4. Aggiorna testi guida in base alle empanadas gustate
+      if (empanadaCount === 0) {
+        counterLabel.textContent = 'Tocca per iniziare';
+        capacityStatus.textContent = "Spazio sufficiente per un'altra!";
+        capacityStatus.className = 'capacity-status-text';
+      } else if (empanadaCount < 5) {
+        counterLabel.textContent = empanadaCount === 1 ? '1 empanada gustata' : `${empanadaCount} empanadas gustate`;
+        capacityStatus.textContent = "¡C'è ancora molto posto!";
+        capacityStatus.className = 'capacity-status-text';
+      } else if (empanadaCount < 9) {
+        counterLabel.textContent = 'Livello esperto';
+        capacityStatus.textContent = 'Inizia a stringere la cintura...';
+        capacityStatus.className = 'capacity-status-text';
+      } else if (empanadaCount === 10) {
+        counterLabel.textContent = 'Capienza al limite!';
+        capacityStatus.textContent = '⚠️ ATTENZIONE: La prossima scoppia!';
+        capacityStatus.className = 'capacity-status-text status-alert';
+      }
+    }
+
+    /* === EFFETTO ESPLOSIONE DI RIPIENO === */
+    function triggerExplosion() {
+      // Titolo scheda allarmante
+      document.title = '💥 ¡BOOM! Hay lugar para otra?';
+
+      // Pulisce eventuali particelle precedenti e attiva l'overlay
+      splatterOverlay.innerHTML = '';
+      splatterOverlay.style.display = 'block';
+
+      // Scuote lo schermo del dispositivo
+      screenContainer.classList.add('shake');
+      setTimeout(() => {
+        screenContainer.classList.remove('shake');
+      }, 450);
+
+      // Colori tipici del ripieno criollo (carne, tuorlo, cipolla caramellata)
+      const fillingColors = ['#85340D', '#602000', '#DF8C00', '#F6B40E', '#A04313'];
+      const totalParticles = 46;
+
+      // Coordinate del centro dell'empanada
+      const originX = 210;
+      const originY = 370;
+
+      for (let i = 0; i < totalParticles; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'splatter-particle';
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 70 + Math.random() * 240;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+
+        const size = 10 + Math.random() * 26;
+        const scale = 0.8 + Math.random() * 1.4;
+        const color = fillingColors[Math.floor(Math.random() * fillingColors.length)];
+
+        // Forma organica e asimmetrica per simulare gocce di ripieno
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.backgroundColor = color;
+        particle.style.borderRadius = Math.random() > 0.4 ? '40% 60% 70% 30% / 40% 50% 60% 50%' : '50%';
+        particle.style.left = `${originX}px`;
+        particle.style.top = `${originY}px`;
+        particle.style.setProperty('--tx', `${tx}px`);
+        particle.style.setProperty('--ty', `${ty}px`);
+        particle.style.setProperty('--scale', scale);
+        particle.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.25)';
+
+        splatterOverlay.appendChild(particle);
+      }
+
+      // Mostra la modale di avviso dopo una breve pausa
+      setTimeout(() => {
+        modalBackdrop.style.display = 'flex';
+      }, 500);
+    }
+
+    /* === RESET DEL CONTATORE E DEL PIATTO === */
+    function resetAll() {
+      empanadaCount = 0;
+      updateUI();
+      splatterOverlay.style.display = 'none';
+      splatterOverlay.innerHTML = '';
+      modalBackdrop.style.display = 'none';
+    }
+
+    /* === GESTIONE DEGLI EVENTI === */
+    // 1. Click sull'empanada: incrementa il conto o attiva l'esplosione se supera 10
+    empanadaBtn.addEventListener('click', () => {
+      if (empanadaCount >= maxCapacity) {
+        empanadaCount = 11;
+        updateUI();
+        triggerExplosion();
+        return;
+      }
+      empanadaCount++;
+      updateUI();
+    });
+
+    // 2. Click sul bottone Piatto Vuoto: azzera tutto
+    resetPlateBtn.addEventListener('click', resetAll);
+
+    // 3. Click sul bottone della modale di scoppio: azzera e pulisce il piatto
+    modalResetBtn.addEventListener('click', resetAll);
+
+    // 4. Click sul pulsante Profilo: mostra un messaggio riassuntivo
+    profileBtn.addEventListener('click', () => {
+      alert(`🥟 PROFILO GOURMET:\n\n• Empanadas gustate in questa sessione: ${empanadaCount}\n• Specialità preferita: Empanadas Criollas con carne tagliata al coltello\n• Consiglio del cuoco: Fai un giro col piatto vuoto per ricominciare!`);
+    });
+
+    /* === AVVIO INIZIALE === */
+    updateUI();
+  </script>
+</body>
+
+</html>
